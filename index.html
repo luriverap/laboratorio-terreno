@@ -714,9 +714,25 @@ const MISSIONS = [
   click: (x, y) => {
     const r = (y / 3) | 0, c = (x / 3) | 0, h = hornAt(r, c), k = r * DW + c, s = SL[k], cl = IGAC[igacClass(s)];
     const el = $('horn'); if (!el) return;
-    el.innerHTML = `<div class="row" style="align-items:flex-start;gap:18px"><div><div class="eyebrow" style="margin-bottom:4px">Ventana 3 × 3 (m)</div><div class="win">${h.win.map((v, n) => `<span class="${n === 4 ? 'c' : ''}">${fmt(v, 1)}</span>`).join('')}</div></div>
-      <div class="mono" style="font-size:13px;min-width:0">dz/dx = ${fmt(h.dzdx, 3)} m/m<br>dz/dy = ${fmt(h.dzdn, 3)} m/m<br>√(dx² + dy²) × 100 = <b>${fmt(s, 1)} %</b><br>arctan → <b>${fmt(Math.atan(s / 100) * 180 / Math.PI, 1)}°</b><br>Clase: <b>${cl.name}</b></div></div>
-      <p style="margin-top:8px;font-size:13.5px;color:var(--muted)">dz/dx = [(c + 2f + i) − (a + 2d + g)] ÷ (8 × 30 m). Las letras van de izquierda a derecha y de arriba abajo.</p>`;
+    const [a, b, cc, d, e, f, g, hh, ii] = h.win, F = v => fmt(v, 1), L = 'abcdefghi';
+    const ex = (cc + 2 * f + ii), wx = (a + 2 * d + g), no = (a + 2 * b + cc), su = (g + 2 * hh + ii);
+    const deg = Math.atan(s / 100) * 180 / Math.PI;
+    el.innerHTML = `<div class="row" style="align-items:flex-start;gap:18px"><div><div class="eyebrow" style="margin-bottom:4px">Ventana 3 × 3 (m)</div><div class="win">${h.win.map((v, n) => `<span class="${n === 4 ? 'c' : ''}"><small style="display:block;font-size:10px;opacity:.65">${L[n]}</small>${F(v)}</span>`).join('')}</div></div>
+      <div style="min-width:0"><div class="eyebrow" style="margin-bottom:4px">Resultado</div><div class="mono" style="font-size:13px">Pendiente: <b>${fmt(s, 1)} %</b> · ${fmt(deg, 1)}°<br>Clase: <b>${cl.name}</b></div></div></div>
+      <div class="mono" style="font-size:12.5px;line-height:1.7;margin-top:10px;overflow-x:auto;white-space:nowrap">
+      <b>1. Cambio hacia el este</b> (columna derecha menos columna izquierda)<br>
+      dz/dx = [(c + 2f + i) − (a + 2d + g)] ÷ (8 × 30)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= [(${F(cc)} + 2×${F(f)} + ${F(ii)}) − (${F(a)} + 2×${F(d)} + ${F(g)})] ÷ 240<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= (${F(ex)} − ${F(wx)}) ÷ 240 = <b>${fmt(h.dzdx, 3)}</b> m/m<br>
+      <b>2. Cambio hacia el norte</b> (fila de arriba menos fila de abajo)<br>
+      dz/dy = [(a + 2b + c) − (g + 2h + i)] ÷ (8 × 30)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= [(${F(a)} + 2×${F(b)} + ${F(cc)}) − (${F(g)} + 2×${F(hh)} + ${F(ii)})] ÷ 240<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;= (${F(no)} − ${F(su)}) ÷ 240 = <b>${fmt(h.dzdn, 3)}</b> m/m<br>
+      <b>3. Pendiente</b><br>
+      √(${fmt(h.dzdx, 3)}² + ${fmt(h.dzdn, 3)}²) × 100 = √(${fmt(h.dzdx ** 2, 4)} + ${fmt(h.dzdn ** 2, 4)}) × 100 = <b>${fmt(s, 1)} %</b><br>
+      <b>4. En grados</b><br>
+      arctan(${fmt(s / 100, 3)}) = <b>${fmt(deg, 1)}°</b></div>
+      <p style="margin-top:8px;font-size:13.5px;color:var(--muted)">Las letras van de izquierda a derecha y de arriba abajo. Los vecinos de los lados pesan el doble (×2) porque están más cerca del centro. 240 = 8 × 30 m, el tamaño de la celda.</p>`;
   } },
 
 /* 2 */ { key: 'relieve', grp: 'Terreno', nm: 'Aspecto y sombreado', layers: ['hs', 'asp', 'dem', 'rgb'], layer: 'hs', pts: 'none',
