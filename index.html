@@ -882,12 +882,11 @@ const MISSIONS = [
 
 /* 6 */ { key: 'repaso', grp: 'Cierre', nm: 'Repaso', solo: true, layers: ['rgb', 'fc', 'igac'], layer: 'fc', pts: 'none',
   html: () => `
-  <div><div class="eyebrow">Misión 6 · autoevaluación</div><h2>Diez preguntas para comprobar lo aprendido</h2></div>
+  <div><div class="eyebrow">Misión 6 · autoevaluación</div><h2>Nueve preguntas para comprobar lo aprendido</h2></div>
   <p class="lead">Sin nota. Responda solo; al final mire qué temas tiene que repasar.</p>
-  <div class="box"><div class="score" id="score">0 / 10</div><p id="scorenote" style="color:var(--muted);font-size:13.5px">Cada pregunta indica su tema.</p></div>
+  <div class="box"><div class="score" id="score">0 / 9</div><p id="scorenote" style="color:var(--muted);font-size:13.5px">Cada pregunta indica su tema.</p></div>
   <div class="box" id="quiz">
     ${mcq('r1', '<span class="tag">GNSS</span> ¿Por qué un receptor necesita al menos 4 satélites para una posición 3D?', ['Uno por cada coordenada X, Y, Z y el cuarto de respaldo', 'Tres incógnitas de posición más el error del reloj del receptor', 'Porque el PDOP mínimo es 4'], 1, 'Son cuatro incógnitas: X, Y, Z y el desfase del reloj del receptor, que no es atómico.')}
-    ${mcq('r2', '<span class="tag">GNSS</span> En un vértice el PDOP es 7,4 y en otro 1,6. ¿Dónde confía más en la posición?', ['Donde el PDOP es 7,4: más alto es mejor', 'Donde el PDOP es 1,6: los satélites están bien repartidos en el cielo', 'Da igual: el PDOP solo afecta la altura'], 1, 'El PDOP mide la geometría de los satélites. Bajo = bien repartidos = menor error; por encima de 6 la posición es poco confiable para un lindero.')}
     ${mcq('r3', '<span class="tag">Resolución</span> Un reservorio mide 15 × 15 m. Con la regla de 3–4 celdas, ¿qué píxel máximo necesita?', ['Unos 4–5 m: ni Sentinel‑2 ni Landsat sirven', '10 m: Sentinel‑2 basta', '30 m: Landsat basta'], 0, '15 ÷ 3 = 5 m como máximo. Con Sentinel‑2 sería 1,5 celdas, un píxel mezclado. Hace falta ortofoto o drone.')}
     ${mcq('r4', '<span class="tag">Drone</span> En un CHM (MDS − MDT) una vía marca −0,20 m. ¿Por qué?', ['Los rásteres están en SRC distintos', 'Ruido vertical normal de la fotogrametría y de la interpolación del MDT', 'Hay un hundimiento del terreno'], 1, 'Unos centímetros arriba o abajo de cero en suelo desnudo es ruido. Un error de SRC daría valores absurdos de cientos de metros o nada de solape.')}
     ${mcq('r5', '<span class="tag">Drone</span> ¿Con qué modelo diseña los canales de drenaje de una finca?', ['MDS, porque es el más detallado', 'MDT, porque los árboles y techos no desvían el agua del suelo', 'Ortomosaico'], 1, 'El agua corre por el suelo. El MDS pone muros falsos donde hay copas.')}
@@ -903,9 +902,9 @@ const MISSIONS = [
     <li>Informe 3: calcule el NDVI de su recuadro con las bandas B4 y B8 que descargaron y crúcelo con su capa de coberturas del Informe 1.</li></ul></div>`,
   after: root => {
     const ok = {}, topics = {};
-    bindMcq(root, (id, good) => { ok[id] = good; const n = Object.values(ok).filter(Boolean).length; $('score').textContent = `${n} / 10`;
+    bindMcq(root, (id, good) => { ok[id] = good; const n = Object.values(ok).filter(Boolean).length; $('score').textContent = `${n} / 9`;
       const q = root.querySelector(`.q[data-q="${id}"] .tag`); if (q && !good) topics[q.textContent] = 1;
-      $('scorenote').textContent = Object.keys(ok).length < 10 ? `Respondidas: ${Object.keys(ok).length} de 10.` : (Object.keys(topics).length ? 'Repase: ' + Object.keys(topics).join(', ') + '.' : 'Todo correcto. Está listo para la Parte 0.'); });
+      $('scorenote').textContent = Object.keys(ok).length < 9 ? `Respondidas: ${Object.keys(ok).length} de 9.` : (Object.keys(topics).length ? 'Repase: ' + Object.keys(topics).join(', ') + '.' : 'Todo correcto. Está listo para la Parte 0.'); });
   } },
 /* 7 */ { key: 'cuencas', grp: 'Complemento', nm: 'Cuencas', layers: ['dem', 'hs', 'rgb'], layer: 'dem', pts: 'none', net: true,
   html: () => `

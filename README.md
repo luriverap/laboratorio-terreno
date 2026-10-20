@@ -17,7 +17,7 @@ Siete misiones sobre un recorte real de 9 × 6 km en Venecia (Antioquia), sector
 | 3 | Álgebra de mapas | Escribir expresiones en una calculadora ráster con la sintaxis de QGIS y resolver cuatro retos |
 | 4 | Índices | Calcular NDVI, NDWI, NDMI y EVI y compararlos en cinco puntos |
 | 5 | Lotes y decisión | Correr estadísticas de zona sobre cinco lotes y decidir cuál renovar |
-| 6 | Repaso | Diez preguntas de autoevaluación |
+| 6 | Repaso | Nueve preguntas de autoevaluación |
 | 7 | Cuencas (complemento) | Soltar una gota, ver su recorrido y delimitar una cuenca |
 
 ## Insumos para QGIS
