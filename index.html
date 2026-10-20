@@ -658,10 +658,10 @@ const MISSIONS = [
     <tr><td>Fotogrametría con drone</td><td><span class="tag ya">S12</span></td><td>Traslape, GSD y altura de dosel = MDS − MDT.</td></tr>
     <tr><td>Pendiente y clases</td><td><span class="tag hoy">Hoy · 1</span></td><td>Calcular la pendiente en % y reclasificarla.</td></tr>
     <tr><td>Aspecto y sombreado</td><td><span class="tag hoy">Hoy · 2</span></td><td>Leer hacia dónde mira una ladera.</td></tr>
-    <tr><td>Cuencas</td><td><span class="tag">Hoy · 3 · demo</span></td><td>Ver cómo se sigue el agua sobre el terreno (demostración).</td></tr>
-    <tr><td>Álgebra de mapas</td><td><span class="tag hoy">Hoy · 4</span></td><td>Escribir expresiones con condiciones en la calculadora ráster.</td></tr>
-    <tr><td>Índices</td><td><span class="tag hoy">Hoy · 5</span></td><td>Calcular NDVI e interpretarlo con la firma espectral.</td></tr>
-    <tr><td>Estadísticas de zona</td><td><span class="tag hoy">Hoy · 6</span></td><td>Resumir un ráster por lote y decidir con cifras.</td></tr>
+        <tr><td>Álgebra de mapas</td><td><span class="tag hoy">Hoy · 3</span></td><td>Escribir expresiones con condiciones en la calculadora ráster.</td></tr>
+    <tr><td>Índices</td><td><span class="tag hoy">Hoy · 4</span></td><td>Calcular NDVI e interpretarlo con la firma espectral.</td></tr>
+    <tr><td>Estadísticas de zona</td><td><span class="tag hoy">Hoy · 5</span></td><td>Resumir un ráster por lote y decidir con cifras.</td></tr>
+    <tr><td>Cuencas</td><td><span class="tag">Al final · complemento</span></td><td>Seguir el agua sobre el terreno. No entra en el parcial.</td></tr>
     </tbody></table></div></div>
   <div class="box idea"><h3>Los datos de hoy</h3>
     <p><b>Sentinel‑2C</b> del 17 de septiembre de 2026, nivel L2A, sin nubes sobre el recorte: bandas B2, B3, B4, B8 a 10 m y B11 a 20 m (remuestreada a 10 m).</p>
@@ -748,69 +748,9 @@ const MISSIONS = [
     $('sazo').textContent = S.sun.az + '° ' + ASP_NAMES[aspIdx(S.sun.az)]; $('salto').textContent = S.sun.alt + '°'; bindMcq(root);
   } },
 
-/* 3 */ { key: 'cuencas', grp: 'Agua', nm: 'Cuencas', layers: ['dem', 'hs', 'rgb'], layer: 'dem', pts: 'none', net: true,
+/* 3 */ { key: 'algebra', grp: 'Ráster', nm: 'Álgebra de mapas', layers: ['calc', 'slope', 'rgb', 'fc'], layer: 'calc', pts: 'none',
   html: () => `
-  <div><div class="eyebrow">Misión 3 · demostración de 10 minutos</div><h2>¿A dónde va una gota que cae aquí?</h2></div>
-  <p class="msg ok"><b>Demostración.</b> No se evalúa: es para ver qué más se puede hacer con un MDE. No hay que hacerlo en QGIS.</p>
-  <p class="lead">Una cuenca es toda el área cuyo escurrimiento sale por un mismo punto, el <b>punto de cierre</b>. Su borde es la <b>divisoria de aguas</b>. QGIS la delimita en cinco pasos sobre el MDE.</p>
-  <div class="box idea"><h3>Los cinco pasos</h3><ol>
-    <li><b>Rellenar depresiones.</b> Los huecos falsos del MDE atrapan el agua; se rellenan para que todo drene.</li>
-    <li><b>Dirección de flujo (D8).</b> Cada celda manda su agua a la vecina más baja de las 8.</li>
-    <li><b>Acumulación.</b> Cuántas celdas drenan a través de cada celda. Valores altos = cauces.</li>
-    <li><b>Red de drenaje.</b> Las celdas cuya acumulación supera un umbral.</li>
-    <li><b>Cuenca.</b> Desde el punto de cierre se recorre la dirección de flujo aguas arriba.</li></ol></div>
-  <div class="box"><h3>Pruébelo</h3>
-    <div class="row"><div class="seg" id="hmode"><button data-m="drop" aria-pressed="${S.mode === 'drop'}">Soltar una gota</button><button data-m="basin" aria-pressed="${S.mode === 'basin'}">Delimitar cuenca</button></div></div>
-    <div class="slider" style="margin-top:8px"><label for="thr">Umbral de la red</label><input type="range" id="thr" min="5" max="500" step="5" value="${S.net}"><output id="thro"></output></div>
-    <p style="font-size:13.5px;color:var(--muted)">«Delimitar cuenca» ajusta el clic a la celda con más acumulación en 60 m a la redonda, como cuando en QGIS se «engancha» el punto de cierre al cauce.</p>
-    <div id="hout"><p class="mono" style="color:var(--muted)">Haga clic en una ladera para soltar una gota.</p></div></div>
-  <div class="box"><h3>Compruebe</h3>
-    ${mcq('m3a', 'Suba el umbral de la red de 50 a 300 ha. ¿Qué pasa?', ['Aparecen más quebradas', 'Quedan solo los cauces más grandes, los que recogen agua de más área', 'Cambia la forma de las cuencas'], 1, 'El umbral es el área mínima que debe drenar a una celda para dibujarla como cauce. Las cuencas no cambian: solo cambia cuántos cauces se dibujan.')}
-    ${mcq('m3b', 'Haga clic sobre el río Cauca y delimite. ¿Por qué la cuenca que sale no sirve?', ['Porque el río es agua y no tiene pendiente', 'Porque la cuenca del Cauca nace cientos de kilómetros aguas arriba y el recorte la corta en el borde', 'Porque el algoritmo D8 no funciona en ríos'], 1, 'La cuenca debe caber completa dentro del MDE. Si toca el borde, está truncada. Por eso el visor le avisa cuando la cuenca toca el borde.')}
-    ${mcq('m3c', 'El Copernicus DEM registra la copa de los árboles. ¿Qué efecto tiene en la red de drenaje bajo un bosque?', ['Ninguno', 'Los cauces se pueden desviar por los bordes del bosque, porque el dosel actúa como una loma falsa', 'Los cauces se vuelven más rectos'], 1, 'Para hidrología se prefiere un MDT. Con un MDS, una cortina de árboles de 20 m es un muro para el agua.')}
-  </div>
-  <div class="box qgis"><h3>Para quien quiera explorar en casa</h3><ol>
-    <li>Rellenar: <code>r.fill.dir</code> (GRASS) o <i>Fill sinks (Wang &amp; Liu)</i> (SAGA).</li>
-    <li><code>r.watershed</code>: tamaño mínimo de cuenca en celdas (umbral). Salidas: acumulación, dirección y drenajes.</li>
-    <li><code>r.water.outlet</code>: entrada = dirección de flujo; coordenadas del punto de cierre tomadas sobre un cauce.</li>
-    <li><i>Ráster ▸ Conversión ▸ Poligonizar</i> y calcule el área con <code>$area / 10000</code>.</li></ol></div>`,
-  after: root => {
-    [...$('hmode').children].forEach(b => b.onclick = () => { S.mode = b.dataset.m; [...$('hmode').children].forEach(x => x.setAttribute('aria-pressed', x === b)); });
-    const ut = () => $('thro').textContent = S.net + ' ha';
-    let t; $('thr').oninput = () => { S.net = +$('thr').value; ut(); clearTimeout(t); t = setTimeout(() => { renderNet(); draw(); }, 50); }; ut();
-    bindMcq(root);
-  },
-  click: (x, y) => {
-    const { acc, down } = hydro(); let k = ((y / 3) | 0) * DW + ((x / 3) | 0); const out = $('hout');
-    if (S.mode === 'drop') {
-      const wet = q => { const i = (((q / DW) | 0) * 3 + 1) * W + (q % DW) * 3 + 1; return L.B03[i] > L.B08[i]; };
-      const path = [k]; let guard = 0, river = false; while (down[k] >= 0 && guard++ < 5000) { k = down[k]; path.push(k); if (wet(k)) { river = true; break; } }
-      S.path = path; S.basin = null; renderBasin();
-      let len = 0; for (let n = 1; n < path.length; n++) { const a = path[n - 1], b = path[n]; len += ((a % DW) !== (b % DW) && ((a / DW) | 0) !== ((b / DW) | 0)) ? 42.43 : 30; }
-      const z0 = L.MDE[path[0]], z1 = L.MDE[path[path.length - 1]];
-      out.innerHTML = `<div class="stat"><span>Recorrido <b>${fmt(len / 1000, 2)} km</b></span><span>Baja de <b>${fmt(z0, 0)}</b> a <b>${fmt(z1, 0)} m</b></span><span>Pendiente media del recorrido <b>${fmt((z0 - z1) / len * 100, 1)} %</b></span></div><p style="font-size:13.5px;margin-top:6px">${river ? 'La gota llegó al río Cauca.' : 'La gota salió por el borde del recorte.'} Ahora pase a «Delimitar cuenca» y haga clic sobre una quebrada.</p>`;
-    } else {
-      const r0 = (k / DW) | 0, c0 = k % DW; let best = k;
-      for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) { const rr = r0 + dr, cc = c0 + dc; if (rr < 0 || cc < 0 || rr >= DH || cc >= DW) continue; const n = rr * DW + cc; if (acc[n] > acc[best]) best = n; }
-      const b = basinFrom(best); S.basin = b; S.path = null; renderBasin();
-      const kc = 0.282 * b.per / Math.sqrt(b.area * 1e4);
-      out.innerHTML = `<div class="tbl"><table><tbody>
-        <tr><td>Área</td><td class="num">${fmt(b.area, 1)} ha</td></tr>
-        <tr><td>Cota máxima / punto de cierre</td><td class="num">${fmt(b.zmax, 0)} / ${fmt(L.MDE[best], 0)} m</td></tr>
-        <tr><td>Desnivel</td><td class="num">${fmt(b.zmax - L.MDE[best], 0)} m</td></tr>
-        <tr><td>Pendiente media</td><td class="num">${fmt(b.smean, 1)} %</td></tr>
-        <tr><td>Área con pendiente ≤ 12 %</td><td class="num">${fmt(b.le12 * 100, 1)} %</td></tr>
-        <tr><td>Longitud del recorrido más largo</td><td class="num">${fmt(b.L / 1000, 2)} km</td></tr>
-        <tr><td>Coeficiente de compacidad Kc*</td><td class="num">${fmt(kc, 2)}</td></tr></tbody></table></div>
-        ${b.edge ? '<p class="msg err" style="margin-top:8px">Esta cuenca toca el borde del recorte: está truncada y sus cifras no son válidas.</p>' : '<p class="msg ok" style="margin-top:8px">La cuenca cabe completa en el recorte.</p>'}
-        <p style="font-size:12.5px;color:var(--muted);margin-top:6px">* Kc = 0,282 × P ÷ √A. Kc = 1 es un círculo; cuanto más alejado de 1, más alargada la cuenca y más lenta su respuesta a una tormenta. El perímetro en escalera de las celdas lo infla un poco.</p>`;
-    }
-    draw();
-  } },
-
-/* 4 */ { key: 'algebra', grp: 'Ráster', nm: 'Álgebra de mapas', layers: ['calc', 'slope', 'rgb', 'fc'], layer: 'calc', pts: 'none',
-  html: () => `
-  <div><div class="eyebrow">Misión 4 · la calculadora ráster</div><h2>Preguntas que se responden celda por celda</h2></div>
+  <div><div class="eyebrow">Misión 3 · la calculadora ráster</div><h2>Preguntas que se responden celda por celda</h2></div>
   <p class="lead">El álgebra de mapas opera rásteres como si fueran números. Una condición devuelve 1 donde se cumple y 0 donde no. Multiplicar condiciones equivale a «y»; sumarlas y pedir &gt; 0 equivale a «o».</p>
   <div class="box idea"><h3>Cuatro tipos de operación, todos de hoy</h3><div class="tbl"><table><tbody>
     <tr><td><b>Local</b></td><td>Celda a celda, con las capas apiladas.</td><td>NDVI, reclasificar, condiciones</td></tr>
@@ -872,9 +812,9 @@ const MISSIONS = [
     if (S.calc) showCalc(); else go_calc();
   } },
 
-/* 5 */ { key: 'indices', grp: 'Satélite', nm: 'Índices', layers: ['idx', 'fc', 'rgb'], layer: 'idx', pts: 'idx',
+/* 4 */ { key: 'indices', grp: 'Satélite', nm: 'Índices', layers: ['idx', 'fc', 'rgb'], layer: 'idx', pts: 'idx',
   html: () => `
-  <div><div class="eyebrow">Misión 5 · cocientes normalizados</div><h2>Un índice es una resta dividida por una suma</h2></div>
+  <div><div class="eyebrow">Misión 4 · cocientes normalizados</div><h2>Un índice es una resta dividida por una suma</h2></div>
   <p class="lead">La hoja sana absorbe el rojo (clorofila) y refleja mucho infrarrojo cercano (estructura de la hoja). Restar las dos bandas resalta el contraste; dividir por la suma lo deja entre −1 y 1 y quita buena parte del efecto de la sombra y la iluminación.</p>
   <div class="cols2" id="idxsel">${Object.entries(INDEX).map(([k, v]) => `<button class="idx" data-i="${k}" aria-pressed="${S.idx === k}"><b>${v.name}</b><span class="f">${v.f}</span><small>${v.what}</small></button>`).join('')}</div>
   <div class="box"><h3>Distribución en el recorte</h3><div id="hist"></div><p id="histnote" style="font-size:13px;color:var(--muted)"></p></div>
@@ -887,7 +827,7 @@ const MISSIONS = [
     <tr><td class="num">&gt; 0,7</td><td>Vegetación densa y vigorosa: bosque, cultivo en pleno desarrollo</td></tr></tbody></table></div>
     <p style="font-size:13px;color:var(--muted);margin-top:6px">Son guías. El valor «normal» depende del cultivo, su edad y la época. Compare siempre contra un lote de referencia o contra fechas anteriores.</p></div>
   <div class="box"><h3>Compruebe</h3>
-    ${mcq('m5a', 'Compare los puntos A (bosque) y E (pasto) con NDVI y con EVI. ¿Qué muestra?', ['Que el EVI siempre da más alto', 'Que el NDVI se satura: bosque y pasto denso quedan cerca de 0,9, mientras que el EVI todavía los separa', 'Que los dos índices son iguales'], 1, 'Por encima de cierta biomasa el rojo ya casi no baja y el NDVI se aplana cerca de 1. El EVI y el NDRE del drone de la sesión 12 sirven justamente para eso.')}
+    ${mcq('m5a', 'Compare los puntos A (bosque) y E (pasto) con NDVI y con EVI. ¿Qué muestra?', ['Que el EVI siempre da más alto', 'Que el bosque queda casi en el techo del NDVI (0,93), mientras que en EVI queda en 0,63 y todavía tiene margen: el NDVI se satura', 'Que los dos índices son iguales'], 1, 'Por encima de cierta biomasa el rojo ya casi no baja y el NDVI se aplana cerca de 1: dos bosques distintos dan casi el mismo valor. El EVI y el NDRE del drone de la sesión 12 sirven justamente para eso.')}
     ${mcq('m5b', 'El punto B tiene NDVI de 0,4 y NDMI bajo. El dueño dice que el potrero «se ve verde». ¿Qué le responde?', ['Que la imagen está mala', 'Que el NDVI y el NDMI miden clorofila y agua en la hoja; el ojo no ve el infrarrojo, y un potrero puede verse verde y tener poca biomasa o estrés hídrico', 'Que hay que repetir con una cámara RGB'], 1, 'Antes de concluir, verifique en campo: pastoreo reciente, época seca o suelo descubierto también bajan el NDVI.')}
     ${mcq('m5c', 'Para el Informe 3 un grupo quiere detectar estrés hídrico en un cultivo. ¿Qué índice agrega al NDVI?', ['NDWI de McFeeters (B03 y B08)', 'NDMI (B08 y B11)', 'Ninguno: el NDVI basta'], 1, 'El NDWI de McFeeters detecta cuerpos de agua. El que responde al agua dentro de la hoja usa el SWIR (B11): el NDMI, también llamado NDWI de Gao. Revise siempre la fórmula, no solo el nombre.')}
   </div>
@@ -896,7 +836,7 @@ const MISSIONS = [
     <li>Simbología ▸ <b>Pseudocolor monobanda</b>, rampa <code>RdYlGn</code>, mínimo 0 y máximo 0,9.</li>
     <li>Si sus bandas vienen en enteros (0–10 000), el NDVI sale igual porque es un cociente, pero para otros índices como el EVI hay que dividir primero por 10 000.</li></ol></div>`,
   after: root => {
-    root.querySelectorAll('#idxsel .idx').forEach(b => b.onclick = () => { S.idx = b.dataset.i; root.querySelectorAll('#idxsel .idx').forEach(x => x.setAttribute('aria-pressed', x === b)); buildLayers(MISSIONS[5].layers); setLayer('idx'); hist(); if (S.mark) MISSIONS[5].click(...S.mark); });
+    root.querySelectorAll('#idxsel .idx').forEach(b => b.onclick = () => { S.idx = b.dataset.i; root.querySelectorAll('#idxsel .idx').forEach(x => x.setAttribute('aria-pressed', x === b)); buildLayers(MISSIONS[4].layers); setLayer('idx'); hist(); if (S.mark) MISSIONS[4].click(...S.mark); });
     root.querySelectorAll('[data-p]').forEach(b => b.onclick = () => { const p = PTS_IDX.find(q => q.id === b.dataset.p); clickMap(p.x, p.y); });
     const hist = () => { const ix = INDEX[S.idx], A = indexArr(S.idx); const [lo, hi] = S.idx === 'NDVI' ? [-0.4, 1] : ix.rng; const rn = rampFn(S.idx === 'NDVI' ? RAMPS.ndvi : RAMPS.seq);
       const col = v => { const c = S.idx === 'NDVI' ? rn((v + 0.3) / 1.25) : rn((v - ix.rng[0]) / (ix.rng[1] - ix.rng[0])); return `rgb(${c.map(Math.round).join(',')})`; };
@@ -914,9 +854,9 @@ const MISSIONS = [
       <div class="tbl"><table><tbody>${Object.entries(INDEX).map(([k, d]) => `<tr class="${k === S.idx ? 'hl' : ''}"><td><b>${k}</b></td><td class="mono" style="font-size:12px">${d.sub(vs)}</td><td class="num"><b>${fmt(d.calc(...v), 3)}</b></td></tr>`).join('')}</tbody></table></div></div>${sig}</div>`;
   } },
 
-/* 6 */ { key: 'lotes', grp: 'Decisión', nm: 'Lotes y decisión', layers: ['idx', 'igac', 'rgb'], layer: 'idx', pts: 'none',
+/* 5 */ { key: 'lotes', grp: 'Decisión', nm: 'Lotes y decisión', layers: ['idx', 'igac', 'rgb'], layer: 'idx', pts: 'none',
   html: () => `
-  <div><div class="eyebrow">Misión 6 · operación zonal</div><h2>Del ráster a una tabla por lote</h2></div>
+  <div><div class="eyebrow">Misión 5 · operación zonal</div><h2>Del ráster a una tabla por lote</h2></div>
   <p class="lead"><b>Estadísticas de zona</b> cruza los polígonos de los lotes con un ráster y escribe en la tabla de atributos la media, el mínimo o el máximo de las celdas de cada lote. QGIS cuenta una celda cuando su centro cae dentro del polígono.</p>
   <div class="box"><div class="row" style="justify-content:space-between"><h3 style="margin:0">Hacienda de práctica · 5 lotes</h3><button class="btn primary" id="zrun">Ejecutar estadísticas de zona</button></div>
     <div id="ztab" style="margin-top:10px"><p class="mono" style="color:var(--muted)">La tabla aparece al ejecutar. Antes, haga su predicción mirando el mapa: ¿qué lote tiene el NDVI más bajo? ¿cuál es el más plano?</p></div></div>
@@ -944,9 +884,9 @@ const MISSIONS = [
     $('cp').onclick = () => { const t = $('prm').textContent; navigator.clipboard?.writeText(t).then(() => $('cpo').textContent = 'Copiado.', () => { const r = document.createRange(); r.selectNodeContents($('prm')); const s = getSelection(); s.removeAllRanges(); s.addRange(r); $('cpo').textContent = 'Seleccionado: use Ctrl + C.'; }); };
   } },
 
-/* 7 */ { key: 'repaso', grp: 'Cierre', nm: 'Repaso', solo: true, layers: ['rgb', 'fc', 'igac'], layer: 'fc', pts: 'none',
+/* 6 */ { key: 'repaso', grp: 'Cierre', nm: 'Repaso', solo: true, layers: ['rgb', 'fc', 'igac'], layer: 'fc', pts: 'none',
   html: () => `
-  <div><div class="eyebrow">Misión 7 · autoevaluación</div><h2>Diez preguntas para comprobar lo aprendido</h2></div>
+  <div><div class="eyebrow">Misión 6 · autoevaluación</div><h2>Diez preguntas para comprobar lo aprendido</h2></div>
   <p class="lead">Sin nota. Responda solo; al final mire qué temas tiene que repasar.</p>
   <div class="box"><div class="score" id="score">0 / 10</div><p id="scorenote" style="color:var(--muted);font-size:13.5px">Cada pregunta indica su tema.</p></div>
   <div class="box" id="quiz">
@@ -962,7 +902,7 @@ const MISSIONS = [
     ${mcq('r10', '<span class="tag">Zonal</span> Corre Estadísticas de zona sobre un ráster de pendiente de 30 m con un lote de 0,5 ha. ¿Qué le preocupa?', ['Nada', 'El lote tiene unas 5 celdas: la media depende mucho de qué celdas caen dentro', 'Que QGIS no calcule medias de pendiente'], 1, '0,5 ha ÷ 0,09 ha ≈ 5,6 celdas. Para lotes pequeños use un MDE más fino (por ejemplo, el MDT del drone).')}
   </div>
   <div class="box idea"><h3>Para seguir practicando</h3><ul>
-    <li>Repita en QGIS los pasos de las misiones 1, 4, 5 y 6 con los insumos de hoy: si sus números coinciden con los de esta página, el procedimiento está bien.</li>
+    <li>Repita en QGIS los pasos de las misiones 1, 3, 4 y 5 con los insumos de hoy: si sus números coinciden con los de esta página, el procedimiento está bien.</li>
     <li>Repase los temas que salieron marcados arriba.</li>
     <li>Informe 3: calcule el NDVI de su recuadro con las bandas B4 y B8 que descargaron y crúcelo con su capa de coberturas del Informe 1.</li></ul></div>`,
   after: root => {
@@ -971,6 +911,75 @@ const MISSIONS = [
       const q = root.querySelector(`.q[data-q="${id}"] .tag`); if (q && !good) topics[q.textContent] = 1;
       $('scorenote').textContent = Object.keys(ok).length < 10 ? `Respondidas: ${Object.keys(ok).length} de 10.` : (Object.keys(topics).length ? 'Repase: ' + Object.keys(topics).join(', ') + '.' : 'Todo correcto. Está listo para la Parte 0.'); });
   } },
+/* 7 */ { key: 'cuencas', grp: 'Complemento', nm: 'Cuencas', layers: ['dem', 'hs', 'rgb'], layer: 'dem', pts: 'none', net: true,
+  html: () => `
+  <div><div class="eyebrow">Complemento · no entra en el parcial</div><h2>¿A dónde va una gota que cae aquí?</h2></div>
+  <p class="msg ok"><b>Complemento.</b> No entra en el Parcial 2: es para ver qué más se puede hacer con un MDE. No hay que hacerlo en QGIS.</p>
+  <p class="lead">Una cuenca es toda el área cuyo escurrimiento sale por un mismo punto, el <b>punto de cierre</b>. Su borde es la <b>divisoria de aguas</b>. QGIS la delimita en cinco pasos sobre el MDE.</p>
+  <div class="box"><h3>Conceptos</h3><div class="tbl"><table><tbody>
+    <tr><td><b>Cuenca hidrográfica</b></td><td>Toda el área cuyo escurrimiento superficial sale por un mismo punto del cauce.</td></tr>
+    <tr><td><b>Punto de cierre</b></td><td>El punto del cauce donde se «cierra» la cuenca. Cambiarlo de sitio cambia la cuenca.</td></tr>
+    <tr><td><b>Divisoria de aguas</b></td><td>La línea de las partes más altas que separa una cuenca de la vecina: a un lado el agua va a un cauce, al otro lado a otro.</td></tr>
+    <tr><td><b>Red de drenaje</b></td><td>Los cauces: celdas por las que pasa el agua de mucha área aguas arriba.</td></tr>
+    <tr><td><b>Dirección de flujo (D8)</b></td><td>Cada celda manda toda su agua a una de sus 8 vecinas: la de mayor pendiente hacia abajo.</td></tr>
+    <tr><td><b>Acumulación de flujo</b></td><td>Cuántas celdas drenan a través de cada celda. Multiplicada por el área de la celda es el área drenada.</td></tr>
+    <tr><td><b>Umbral</b></td><td>El área drenada mínima para considerar que una celda ya es cauce. Más umbral, menos cauces dibujados.</td></tr>
+    <tr><td><b>Depresión</b></td><td>Una celda más baja que todas sus vecinas. Casi siempre es un error del MDE y se rellena antes del análisis.</td></tr>
+  </tbody></table></div></div>
+  <div class="box idea"><h3>Los cinco pasos</h3><ol>
+    <li><b>Rellenar depresiones.</b> Los huecos falsos del MDE atrapan el agua; se rellenan para que todo drene.</li>
+    <li><b>Dirección de flujo (D8).</b> Cada celda manda su agua a la vecina más baja de las 8.</li>
+    <li><b>Acumulación.</b> Cuántas celdas drenan a través de cada celda. Valores altos = cauces.</li>
+    <li><b>Red de drenaje.</b> Las celdas cuya acumulación supera un umbral.</li>
+    <li><b>Cuenca.</b> Desde el punto de cierre se recorre la dirección de flujo aguas arriba.</li></ol></div>
+  <div class="box"><h3>Pruébelo</h3>
+    <div class="row"><div class="seg" id="hmode"><button data-m="drop" aria-pressed="${S.mode === 'drop'}">Soltar una gota</button><button data-m="basin" aria-pressed="${S.mode === 'basin'}">Delimitar cuenca</button></div></div>
+    <div class="slider" style="margin-top:8px"><label for="thr">Umbral de la red</label><input type="range" id="thr" min="5" max="500" step="5" value="${S.net}"><output id="thro"></output></div>
+    <p style="font-size:13.5px;color:var(--muted)">«Delimitar cuenca» ajusta el clic a la celda con más acumulación en 60 m a la redonda, como cuando en QGIS se «engancha» el punto de cierre al cauce.</p>
+    <div id="hout"><p class="mono" style="color:var(--muted)">Haga clic en una ladera para soltar una gota.</p></div></div>
+  <div class="box"><h3>Compruebe</h3>
+    ${mcq('m3a', 'Suba el umbral de la red de 50 a 300 ha. ¿Qué pasa?', ['Aparecen más quebradas', 'Quedan solo los cauces más grandes, los que recogen agua de más área', 'Cambia la forma de las cuencas'], 1, 'El umbral es el área mínima que debe drenar a una celda para dibujarla como cauce. Las cuencas no cambian: solo cambia cuántos cauces se dibujan.')}
+    ${mcq('m3b', 'Haga clic sobre el río Cauca y delimite. ¿Por qué la cuenca que sale no sirve?', ['Porque el río es agua y no tiene pendiente', 'Porque la cuenca del Cauca nace cientos de kilómetros aguas arriba y el recorte la corta en el borde', 'Porque el algoritmo D8 no funciona en ríos'], 1, 'La cuenca debe caber completa dentro del MDE. Si toca el borde, está truncada. Por eso el visor le avisa cuando la cuenca toca el borde.')}
+    ${mcq('m3c', 'El Copernicus DEM registra la copa de los árboles. ¿Qué efecto tiene en la red de drenaje bajo un bosque?', ['Ninguno', 'Los cauces se pueden desviar por los bordes del bosque, porque el dosel actúa como una loma falsa', 'Los cauces se vuelven más rectos'], 1, 'Para hidrología se prefiere un MDT. Con un MDS, una cortina de árboles de 20 m es un muro para el agua.')}
+  </div>
+  <div class="box qgis"><h3>Para quien quiera explorar en casa</h3><ol>
+    <li>Rellenar: <code>r.fill.dir</code> (GRASS) o <i>Fill sinks (Wang &amp; Liu)</i> (SAGA).</li>
+    <li><code>r.watershed</code>: tamaño mínimo de cuenca en celdas (umbral). Salidas: acumulación, dirección y drenajes.</li>
+    <li><code>r.water.outlet</code>: entrada = dirección de flujo; coordenadas del punto de cierre tomadas sobre un cauce.</li>
+    <li><i>Ráster ▸ Conversión ▸ Poligonizar</i> y calcule el área con <code>$area / 10000</code>.</li></ol></div>`,
+  after: root => {
+    [...$('hmode').children].forEach(b => b.onclick = () => { S.mode = b.dataset.m; [...$('hmode').children].forEach(x => x.setAttribute('aria-pressed', x === b)); });
+    const ut = () => $('thro').textContent = S.net + ' ha';
+    let t; $('thr').oninput = () => { S.net = +$('thr').value; ut(); clearTimeout(t); t = setTimeout(() => { renderNet(); draw(); }, 50); }; ut();
+    bindMcq(root);
+  },
+  click: (x, y) => {
+    const { acc, down } = hydro(); let k = ((y / 3) | 0) * DW + ((x / 3) | 0); const out = $('hout');
+    if (S.mode === 'drop') {
+      const wet = q => { const i = (((q / DW) | 0) * 3 + 1) * W + (q % DW) * 3 + 1; return L.B03[i] > L.B08[i]; };
+      const path = [k]; let guard = 0, river = false; while (down[k] >= 0 && guard++ < 5000) { k = down[k]; path.push(k); if (wet(k)) { river = true; break; } }
+      S.path = path; S.basin = null; renderBasin();
+      let len = 0; for (let n = 1; n < path.length; n++) { const a = path[n - 1], b = path[n]; len += ((a % DW) !== (b % DW) && ((a / DW) | 0) !== ((b / DW) | 0)) ? 42.43 : 30; }
+      const z0 = L.MDE[path[0]], z1 = L.MDE[path[path.length - 1]];
+      out.innerHTML = `<div class="stat"><span>Recorrido <b>${fmt(len / 1000, 2)} km</b></span><span>Baja de <b>${fmt(z0, 0)}</b> a <b>${fmt(z1, 0)} m</b></span><span>Pendiente media del recorrido <b>${fmt((z0 - z1) / len * 100, 1)} %</b></span></div><p style="font-size:13.5px;margin-top:6px">${river ? 'La gota llegó al río Cauca.' : 'La gota salió por el borde del recorte.'} Ahora pase a «Delimitar cuenca» y haga clic sobre una quebrada.</p>`;
+    } else {
+      const r0 = (k / DW) | 0, c0 = k % DW; let best = k;
+      for (let dr = -2; dr <= 2; dr++) for (let dc = -2; dc <= 2; dc++) { const rr = r0 + dr, cc = c0 + dc; if (rr < 0 || cc < 0 || rr >= DH || cc >= DW) continue; const n = rr * DW + cc; if (acc[n] > acc[best]) best = n; }
+      const b = basinFrom(best); S.basin = b; S.path = null; renderBasin();
+      const kc = 0.282 * b.per / Math.sqrt(b.area * 1e4);
+      out.innerHTML = `<div class="tbl"><table><tbody>
+        <tr><td>Área</td><td class="num">${fmt(b.area, 1)} ha</td></tr>
+        <tr><td>Cota máxima / punto de cierre</td><td class="num">${fmt(b.zmax, 0)} / ${fmt(L.MDE[best], 0)} m</td></tr>
+        <tr><td>Desnivel</td><td class="num">${fmt(b.zmax - L.MDE[best], 0)} m</td></tr>
+        <tr><td>Pendiente media</td><td class="num">${fmt(b.smean, 1)} %</td></tr>
+        <tr><td>Área con pendiente ≤ 12 %</td><td class="num">${fmt(b.le12 * 100, 1)} %</td></tr>
+        <tr><td>Longitud del recorrido más largo</td><td class="num">${fmt(b.L / 1000, 2)} km</td></tr>
+        <tr><td>Coeficiente de compacidad Kc*</td><td class="num">${fmt(kc, 2)}</td></tr></tbody></table></div>
+        ${b.edge ? '<p class="msg err" style="margin-top:8px">Esta cuenca toca el borde del recorte: está truncada y sus cifras no son válidas.</p>' : '<p class="msg ok" style="margin-top:8px">La cuenca cabe completa en el recorte.</p>'}
+        <p style="font-size:12.5px;color:var(--muted);margin-top:6px">* Kc = 0,282 × P ÷ √A. Kc = 1 es un círculo; cuanto más alejado de 1, más alargada la cuenca y más lenta su respuesta a una tormenta. El perímetro en escalera de las celdas lo infla un poco.</p>`;
+    }
+    draw();
+  } }
 ];
 
 function go_calc() {

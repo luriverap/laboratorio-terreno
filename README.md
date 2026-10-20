@@ -14,11 +14,11 @@ Siete misiones sobre un recorte real de 9 × 6 km en Venecia (Antioquia), sector
 |---|---|---|
 | 1 | Pendiente | Calcular la pendiente con la ventana de 3 × 3 celdas, pasar de grados a porcentaje y leer las clases del IGAC |
 | 2 | Aspecto y sombreado | Ver hacia dónde mira cada ladera y mover el sol del sombreado |
-| 3 | Cuencas | Soltar una gota, ver su recorrido y delimitar una cuenca (demostración) |
-| 4 | Álgebra de mapas | Escribir expresiones en una calculadora ráster con la sintaxis de QGIS y resolver cuatro retos |
-| 5 | Índices | Calcular NDVI, NDWI, NDMI y EVI y compararlos en cinco puntos |
-| 6 | Lotes y decisión | Correr estadísticas de zona sobre cinco lotes y decidir cuál renovar |
-| 7 | Repaso | Diez preguntas de autoevaluación |
+| 3 | Álgebra de mapas | Escribir expresiones en una calculadora ráster con la sintaxis de QGIS y resolver cuatro retos |
+| 4 | Índices | Calcular NDVI, NDWI, NDMI y EVI y compararlos en cinco puntos |
+| 5 | Lotes y decisión | Correr estadísticas de zona sobre cinco lotes y decidir cuál renovar |
+| 6 | Repaso | Diez preguntas de autoevaluación |
+| 7 | Cuencas (complemento) | Soltar una gota, ver su recorrido y delimitar una cuenca |
 
 ## Insumos para QGIS
 
