@@ -547,6 +547,9 @@ function clickMap(x, y) { S.mark = [x, y]; const m = MISSIONS[cur]; if (m.click)
 
 /* ---------- utilidades de panel ---------- */
 function mcq(id, ask, opts, good, why) {
+  // rota las opciones de forma fija según el id, para que la correcta no caiga siempre en la misma letra
+  let h = 0; for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) >>> 0;
+  const rot = h % opts.length; opts = opts.slice(rot).concat(opts.slice(0, rot)); good = (good - rot + opts.length) % opts.length;
   return `<div class="q" data-q="${id}"><div class="ask">${ask}</div><div class="opts">${opts.map((o, k) => `<button data-k="${k}">${String.fromCharCode(65 + k)}) ${o}</button>`).join('')}</div><div class="fb" hidden data-good="${good}">${why}</div></div>`;
 }
 function bindMcq(root, onAnswer) {
